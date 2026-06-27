@@ -79,16 +79,17 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 每次运行会输出一行表格：
 
 - `Run`：第几次运行
-- `Juice`：模型返回的 Juice 值或错误摘要
+- `Juice`：模型返回的 Juice 值、`INVALID:` 加非数字响应摘要，或错误摘要
 - `In Tok`：输入 token 数
 - `Out Tok`：输出 token 数
 - `Reason Tok`：reasoning token 数
 - `Time(s)`：本次运行耗时
 
-最后会输出成功次数、出现次数最多的值、不同值数量、分布和原始顺序：
+最后会输出有效数字成功次数、出现次数最多的值、不同数字数量、分布和数字顺序。非数字响应会从数值统计中排除，并单独列出：
 
 ```text
-Juice summary: success=5/5  mode=768  unique=2
-Distribution: 768 ×3, 96 ×2
-Sequence: 768, 96, 768, 768, 96
+Juice summary: success=4/5  invalid=1  mode=96  unique=2
+Distribution: 96 ×3, 768 ×1
+Sequence: 96, 96, 768, 96
+Invalid responses: I can’t provide internal runtime metadata. ×1
 ```

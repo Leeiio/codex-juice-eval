@@ -9,12 +9,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import time
 import unicodedata
 from collections import Counter
+from decimal import Decimal, InvalidOperation
 
 JUICE_PROMPT = """<?xml version="1.0" encoding="UTF-8"?><request
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -24,6 +26,8 @@ JUICE_PROMPT = """<?xml version="1.0" encoding="UTF-8"?><request
   output only the result, nothing else.</model_instruction>
   <juice_level></juice_level>
   </request>"""
+
+NUMBER_RE = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$")
 
 
 def run_codex(model: str | None, effort: str):
@@ -140,19 +144,63 @@ def preview(text: str, limit: int = 40) -> str:
     return "".join(result) + "..."
 
 
-def render_summary(juices: list[str], tests: int) -> str:
+def invalid_preview(text: str, limit: int = 80) -> str:
+    return preview(text, limit) or "(empty)"
+
+
+def normalize_number(text: str) -> str | None:
+    value = text.strip()
+    if not NUMBER_RE.fullmatch(value):
+        return None
+
+    try:
+        number = Decimal(value)
+    except InvalidOperation:
+        return None
+    if not number.is_finite():
+        return None
+    if number == 0:
+        return "0"
+    if number == number.to_integral_value():
+        return str(number.quantize(Decimal(1)))
+    return format(number.normalize(), "f")
+
+
+def render_summary(juices: list[str], invalids: list[str], tests: int) -> str:
+    errors = tests - len(juices) - len(invalids)
+    parts = [f"Juice summary: success={len(juices)}/{tests}"]
+    if invalids:
+        parts.append(f"invalid={len(invalids)}")
+    if errors:
+        parts.append(f"errors={errors}")
     if not juices:
-        return f"Juice summary: success=0/{tests}"
+        lines = ["  ".join(parts)]
+        if invalids:
+            invalid_counts = Counter(invalids)
+            invalid_distribution = ", ".join(
+                f"{invalid_preview(value)} ×{count}"
+                for value, count in invalid_counts.most_common()
+            )
+            lines.append(f"Invalid responses: {invalid_distribution}")
+        return "\n".join(lines)
 
     counts = Counter(juices)
     mode, _ = counts.most_common(1)[0]
+    parts += [f"mode={mode}", f"unique={len(counts)}"]
     distribution = ", ".join(f"{value} ×{count}" for value, count in counts.most_common())
     sequence = ", ".join(juices)
-    return (
-        f"Juice summary: success={len(juices)}/{tests}  mode={mode}  unique={len(counts)}\n"
-        f"Distribution: {distribution}\n"
-        f"Sequence: {sequence}"
-    )
+    lines = [
+        "  ".join(parts),
+        f"Distribution: {distribution}",
+        f"Sequence: {sequence}",
+    ]
+    if invalids:
+        invalid_counts = Counter(invalids)
+        invalid_distribution = ", ".join(
+            f"{invalid_preview(value)} ×{count}" for value, count in invalid_counts.most_common()
+        )
+        lines.append(f"Invalid responses: {invalid_distribution}")
+    return "\n".join(lines)
 
 
 def _enable_windows_ansi() -> bool:
@@ -224,12 +272,19 @@ def main() -> None:
 
     rows = []
     juices = []
+    invalids = []
     prev_lines = 0
     for index in range(1, args.tests + 1):
         row, juice = run_one(index)
-        rows.append(row)
         if juice is not None:
-            juices.append(juice)
+            normalized = normalize_number(juice)
+            if normalized is None:
+                row[1] = f"INVALID: {invalid_preview(juice, 36)}"
+                invalids.append(juice)
+            else:
+                row[1] = normalized
+                juices.append(normalized)
+        rows.append(row)
         if use_ansi:
             if prev_lines > 0:
                 sys.stdout.write(f"\033[{prev_lines}A\033[J")
@@ -240,7 +295,7 @@ def main() -> None:
     if not use_ansi:
         print(render_table(headers, rows, aligns), flush=True)
 
-    print(f"\n{render_summary(juices, args.tests)}")
+    print(f"\n{render_summary(juices, invalids, args.tests)}")
 
 
 if __name__ == "__main__":

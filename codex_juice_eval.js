@@ -15,6 +15,7 @@ const JUICE_PROMPT = `<?xml version="1.0" encoding="UTF-8"?><request
   </request>`;
 
 const REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh"]);
+const NUMBER_PATTERN = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 function usage() {
   return `Usage: node codex_juice_eval.js [-m model] [-r low|medium|high|xhigh] [-n tests]
@@ -276,23 +277,71 @@ function preview(text, limit = 40) {
   return `${result}...`;
 }
 
-function renderSummary(juices, tests) {
-  if (juices.length === 0) {
-    return `Juice summary: success=0/${tests}`;
+function invalidPreview(text, limit = 80) {
+  return preview(text, limit) || "(empty)";
+}
+
+function normalizeNumber(text) {
+  const value = String(text).trim();
+  if (!NUMBER_PATTERN.test(value)) {
+    return null;
   }
 
-  const counts = new Map();
-  for (const juice of juices) {
-    counts.set(juice, (counts.get(juice) || 0) + 1);
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    return null;
   }
-  const sortedCounts = [...counts.entries()].sort((left, right) => right[1] - left[1]);
+  if (Object.is(number, -0)) {
+    return "0";
+  }
+  return String(number);
+}
+
+function renderSummary(juices, invalids, tests) {
+  const errors = tests - juices.length - invalids.length;
+  const parts = [`Juice summary: success=${juices.length}/${tests}`];
+  if (invalids.length > 0) {
+    parts.push(`invalid=${invalids.length}`);
+  }
+  if (errors > 0) {
+    parts.push(`errors=${errors}`);
+  }
+  if (juices.length === 0) {
+    const lines = [parts.join("  ")];
+    if (invalids.length > 0) {
+      const invalidCounts = countValues(invalids);
+      const invalidDistribution = invalidCounts
+        .map(([value, count]) => `${invalidPreview(value)} ×${count}`)
+        .join(", ");
+      lines.push(`Invalid responses: ${invalidDistribution}`);
+    }
+    return lines.join("\n");
+  }
+
+  const sortedCounts = countValues(juices);
   const [mode] = sortedCounts[0];
+  parts.push(`mode=${mode}`, `unique=${sortedCounts.length}`);
   const distribution = sortedCounts.map(([value, count]) => `${value} ×${count}`).join(", ");
-  return [
-    `Juice summary: success=${juices.length}/${tests}  mode=${mode}  unique=${counts.size}`,
+  const lines = [
+    parts.join("  "),
     `Distribution: ${distribution}`,
     `Sequence: ${juices.join(", ")}`,
-  ].join("\n");
+  ];
+  if (invalids.length > 0) {
+    const invalidDistribution = countValues(invalids)
+      .map(([value, count]) => `${invalidPreview(value)} ×${count}`)
+      .join(", ");
+    lines.push(`Invalid responses: ${invalidDistribution}`);
+  }
+  return lines.join("\n");
+}
+
+function countValues(values) {
+  const counts = new Map();
+  for (const value of values) {
+    counts.set(value, (counts.get(value) || 0) + 1);
+  }
+  return [...counts.entries()].sort((left, right) => right[1] - left[1]);
 }
 
 function setupConsole() {
@@ -306,14 +355,22 @@ function main() {
   const aligns = ["right", "left", "right", "right", "right", "right"];
   const rows = [];
   const juices = [];
+  const invalids = [];
   let prevLines = 0;
 
   for (let index = 1; index <= args.tests; index += 1) {
     const [row, juice] = runOne(index, args);
-    rows.push(row);
     if (juice !== null) {
-      juices.push(juice);
+      const normalized = normalizeNumber(juice);
+      if (normalized === null) {
+        row[1] = `INVALID: ${invalidPreview(juice, 36)}`;
+        invalids.push(juice);
+      } else {
+        row[1] = normalized;
+        juices.push(normalized);
+      }
     }
+    rows.push(row);
     if (useAnsi) {
       if (prevLines > 0) {
         process.stdout.write(`\x1b[${prevLines}A\x1b[J`);
@@ -327,7 +384,7 @@ function main() {
   if (!useAnsi) {
     console.log(renderTable(headers, rows, aligns));
   }
-  console.log(`\n${renderSummary(juices, args.tests)}`);
+  console.log(`\n${renderSummary(juices, invalids, args.tests)}`);
 }
 
 function runOne(index, args) {

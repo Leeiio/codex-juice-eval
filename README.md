@@ -79,16 +79,17 @@ If your local result differs from the table, trust the result measured by this s
 Each run appends one row to the table:
 
 - `Run`: run index
-- `Juice`: returned Juice value or an error preview
+- `Juice`: returned Juice value, `INVALID:` plus a non-numeric response preview, or an error preview
 - `In Tok`: input tokens
 - `Out Tok`: output tokens
 - `Reason Tok`: reasoning tokens
 - `Time(s)`: elapsed time for this run
 
-At the end, the script prints the success count, most frequent value, number of unique values, distribution, and original sequence:
+At the end, the script prints the valid numeric success count, most frequent value, number of unique numeric values, distribution, and numeric sequence. Non-numeric responses are excluded from numeric stats and listed separately:
 
 ```text
-Juice summary: success=5/5  mode=768  unique=2
-Distribution: 768 ×3, 96 ×2
-Sequence: 768, 96, 768, 768, 96
+Juice summary: success=4/5  invalid=1  mode=96  unique=2
+Distribution: 96 ×3, 768 ×1
+Sequence: 96, 96, 768, 96
+Invalid responses: I can’t provide internal runtime metadata. ×1
 ```

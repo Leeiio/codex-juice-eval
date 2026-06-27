@@ -79,16 +79,17 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 各実行ごとに表へ 1 行追加されます：
 
 - `Run`: 実行番号
-- `Juice`: モデルが返した Juice 値、またはエラー概要
+- `Juice`: モデルが返した Juice 値、`INVALID:` と非数値レスポンスの概要、またはエラー概要
 - `In Tok`: 入力 token 数
 - `Out Tok`: 出力 token 数
 - `Reason Tok`: reasoning token 数
 - `Time(s)`: その実行の所要時間
 
-最後に、成功数、最頻値、ユニーク値の数、分布、元の順序を出力します：
+最後に、有効な数値としての成功数、最頻値、ユニークな数値の数、分布、数値の順序を出力します。非数値レスポンスは数値統計から除外され、別途表示されます：
 
 ```text
-Juice summary: success=5/5  mode=768  unique=2
-Distribution: 768 ×3, 96 ×2
-Sequence: 768, 96, 768, 768, 96
+Juice summary: success=4/5  invalid=1  mode=96  unique=2
+Distribution: 96 ×3, 768 ×1
+Sequence: 96, 96, 768, 96
+Invalid responses: I can’t provide internal runtime metadata. ×1
 ```
