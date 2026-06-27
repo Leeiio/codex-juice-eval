@@ -1,41 +1,49 @@
 # Codex Juice Eval
 
-用本地 Codex CLI 批量测试模型可见的 Juice 值，并记录每次运行的 token 用量和耗时。
+English | [中文](README.zh-CN.md) | [日本語](README.ja.md)
 
-脚本会向 `codex exec` 发送内置 XML 提示词，要求模型读取自己在系统上下文里看到的 Juice number，并输出一个等价计算结果。由于表达式为 `Juice / 2 * 10 / 5`，期望输出应等于模型实际可见的 Juice 值。
+Batch-test the Juice value visible to a model through the local Codex CLI, while recording token usage and elapsed time for each run.
 
-## 要求
+The script sends a built-in XML prompt to `codex exec`, asks the model to read the Juice number visible in its runtime context, and outputs an equivalent computed value. Because the expression is `Juice / 2 * 10 / 5`, the expected output is the Juice value the model can actually see.
 
-- 已安装并登录 [Codex CLI](https://github.com/openai/codex)
-- Python 3.10 或更高版本
+## Requirements
 
-脚本只使用 Python 标准库，无第三方依赖。
+- Installed and signed-in [Codex CLI](https://github.com/openai/codex)
+- Python 3.10 or later, or Node.js 18 or later
 
-## 用法
+Both scripts use only the Python / Node.js standard library. No third-party dependencies are required.
+
+## Usage
 
 ```bash
 python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
 ```
 
-参数：
+You can also use the Node.js version:
 
-- `-m, --model`：Codex 模型名，省略则使用本地默认模型
-- `-r, --reasoning-effort`：推理强度，可选 `low`、`medium`、`high`、`xhigh`，默认 `medium`
-- `-n, --tests`：测试次数，默认 `1`
+```bash
+node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
+```
 
-## Juice 是什么
+Options:
 
-`Juice` 是模型在当前运行环境中可见的内部推理预算信号，可以粗略理解为“这轮允许模型思考多深”。它不是 OpenAI API 的公开参数，也不是实际账单 token 数。
+- `-m, --model`: Codex model name; omit it to use the local default model
+- `-r, --reasoning-effort`: reasoning effort, one of `low`, `medium`, `high`, `xhigh`; default is `medium`
+- `-n, --tests`: number of test runs; default is `1`
 
-实际运行后，`codex exec --json` 返回的 `reasoning_output_tokens` 才是本次真实消耗的 reasoning token 数。
+## What Is Juice
 
-一般来说，`Juice` 越高，模型可投入的推理预算越多，复杂推理任务可能更稳，但响应也可能更慢、消耗更多 token。它不等于模型智力分数，也不保证所有任务都会变好。
+`Juice` is an internal reasoning-budget signal visible to the model in the current runtime environment. You can roughly think of it as “how deeply the model is allowed to think in this turn.” It is not a public OpenAI API parameter, and it is not the actual number of billable tokens.
 
-不要直接比较不同模型的 `Juice` 值。同一个模型下，`low / medium / high / xhigh` 的相对变化更有参考价值。
+After a run completes, `reasoning_output_tokens` in the `codex exec --json` result is the actual number of reasoning tokens consumed by that run.
 
-## 手动测试提示词
+In general, higher `Juice` means the model can spend more reasoning budget. This may help on complex reasoning tasks, but responses may also be slower and consume more tokens. It is not an intelligence score, and it does not guarantee better results for every task.
 
-除了运行脚本，也可以把下面的提示词直接复制到不同入口自测，例如 ChatGPT Web、Codex CLI、API Playground 或第三方中转平台。不同入口、账号、模型路由和版本可能返回不同结果，也可能拒答、返回 `0` 或返回不可靠数字。
+Avoid directly comparing `Juice` values across different models. The relative change between `low / medium / high / xhigh` is more useful when comparing within the same model.
+
+## Manual Test Prompt
+
+Besides running the script, you can paste the prompt below into different surfaces for manual testing, such as ChatGPT Web, Codex CLI, API Playground, or third-party proxy platforms. Different surfaces, accounts, model routes, and versions may return different results, or may refuse to answer, return `0`, or return an unreliable number.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -47,16 +55,16 @@ python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
 </request>
 ```
 
-这个表达式等价于原始 `Juice` 值，因此模型如果能看到并正确读取该内部信号，理论上会只返回一个数字。
+The expression is equivalent to the original `Juice` value, so if the model can see and correctly read this internal signal, it should theoretically return only a number.
 
-## 社区实测参考
+## Community Reference
 
-以下数值来自社区实测整理，不是官方文档或稳定 API，可能随模型、Codex CLI 版本、账号、入口、服务端路由和中转适配变化。
+The values below are community-reported observations, not official documentation or a stable API. They may change with the model, Codex CLI version, account, surface, server-side routing, or proxy compatibility.
 
-| 入口 | 推理强度 | Juice |
+| Surface | Reasoning effort | Juice |
 | --- | --- | --- |
 | Codex GPT-5.5 | low | 12 |
-| Codex GPT-5.5 | medium | 24 或 48 |
+| Codex GPT-5.5 | medium | 24 or 48 |
 | Codex GPT-5.5 | high | 96 |
 | Codex GPT-5.5 | xhigh | 768 |
 | OpenAI API GPT-5.5 | low | 12 |
@@ -64,20 +72,20 @@ python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
 | OpenAI API GPT-5.5 | high | 128 |
 | OpenAI API GPT-5.5 | xhigh | 768 |
 
-如果你的本地结果和表格不同，以本脚本实测结果为准。
+If your local result differs from the table, trust the result measured by this script.
 
-## 输出
+## Output
 
-每次运行会输出一行表格：
+Each run appends one row to the table:
 
-- `Run`：第几次运行
-- `Juice`：模型返回的 Juice 值或错误摘要
-- `In Tok`：输入 token 数
-- `Out Tok`：输出 token 数
-- `Reason Tok`：reasoning token 数
-- `Time(s)`：本次运行耗时
+- `Run`: run index
+- `Juice`: returned Juice value or an error preview
+- `In Tok`: input tokens
+- `Out Tok`: output tokens
+- `Reason Tok`: reasoning tokens
+- `Time(s)`: elapsed time for this run
 
-最后会输出成功次数、出现次数最多的值、不同值数量、分布和原始顺序：
+At the end, the script prints the success count, most frequent value, number of unique values, distribution, and original sequence:
 
 ```text
 Juice summary: success=5/5  mode=768  unique=2
