@@ -16,20 +16,22 @@
 ## 用法
 
 ```bash
-python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
+python codex_juice_eval.py -m gpt-5.6-terra -r ultra -n 5
 ```
 
 也可以使用 Node.js 版本：
 
 ```bash
-node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
+node codex_juice_eval.js -m gpt-5.6-terra -r ultra -n 5
 ```
 
 参数：
 
 - `-m, --model`：Codex 模型名，省略则使用本地默认模型
-- `-r, --reasoning-effort`：推理强度，可选 `low`、`medium`、`high`、`xhigh`，默认 `medium`
+- `-r, --reasoning-effort`：推理强度，可选 `low`、`medium`、`high`、`xhigh`、`max`、`ultra`，默认 `medium`
 - `-n, --tests`：测试次数，默认 `1`
+
+GPT-5.6 系列中，`gpt-5.6-luna` 额外支持 `max`，`gpt-5.6-terra` 和 `gpt-5.6-sol` 额外支持 `max`、`ultra`。档位最终是否可用取决于所选模型和后端。
 
 ## Juice 是什么
 
@@ -39,7 +41,7 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 
 一般来说，`Juice` 越高，模型可投入的推理预算越多，复杂推理任务可能更稳，但响应也可能更慢、消耗更多 token。它不等于模型智力分数，也不保证所有任务都会变好。
 
-不要直接比较不同模型的 `Juice` 值。同一个模型下，`low / medium / high / xhigh` 的相对变化更有参考价值。
+不要直接比较不同模型的 `Juice` 值。同一个模型下，各个受支持推理档位之间的相对变化更有参考价值。
 
 ## 手动测试提示词
 
@@ -63,6 +65,23 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 
 | 入口 | 推理强度 | Juice |
 | --- | --- | --- |
+| Codex GPT-5.6 sol | low | 8 |
+| Codex GPT-5.6 sol | medium | 16 |
+| Codex GPT-5.6 sol | high | 40 |
+| Codex GPT-5.6 sol | xhigh | 128 |
+| Codex GPT-5.6 sol | max | 960 |
+| Codex GPT-5.6 sol | ultra | 960 |
+| Codex GPT-5.6 terra | low | 12 |
+| Codex GPT-5.6 terra | medium | 16 |
+| Codex GPT-5.6 terra | high | 32 |
+| Codex GPT-5.6 terra | xhigh | 84 |
+| Codex GPT-5.6 terra | max | 960 |
+| Codex GPT-5.6 terra | ultra | 960 |
+| Codex GPT-5.6 luna | low | 8 |
+| Codex GPT-5.6 luna | medium | 16 |
+| Codex GPT-5.6 luna | high | 48 |
+| Codex GPT-5.6 luna | xhigh | 128 |
+| Codex GPT-5.6 luna | max | 768 |
 | Codex GPT-5.5 | low | 12 |
 | Codex GPT-5.5 | medium | 24 或 48 |
 | Codex GPT-5.5 | high | 96 |

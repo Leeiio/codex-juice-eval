@@ -16,20 +16,22 @@ Both scripts use only the Python / Node.js standard library. No third-party depe
 ## Usage
 
 ```bash
-python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
+python codex_juice_eval.py -m gpt-5.6-terra -r ultra -n 5
 ```
 
 You can also use the Node.js version:
 
 ```bash
-node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
+node codex_juice_eval.js -m gpt-5.6-terra -r ultra -n 5
 ```
 
 Options:
 
 - `-m, --model`: Codex model name; omit it to use the local default model
-- `-r, --reasoning-effort`: reasoning effort, one of `low`, `medium`, `high`, `xhigh`; default is `medium`
+- `-r, --reasoning-effort`: reasoning effort, one of `low`, `medium`, `high`, `xhigh`, `max`, `ultra`; default is `medium`
 - `-n, --tests`: number of test runs; default is `1`
+
+For the GPT-5.6 series, `gpt-5.6-luna` additionally supports `max`, while `gpt-5.6-terra` and `gpt-5.6-sol` additionally support both `max` and `ultra`. Availability is ultimately determined by the selected model and backend.
 
 ## What Is Juice
 
@@ -39,7 +41,7 @@ After a run completes, `reasoning_output_tokens` in the `codex exec --json` resu
 
 In general, higher `Juice` means the model can spend more reasoning budget. This may help on complex reasoning tasks, but responses may also be slower and consume more tokens. It is not an intelligence score, and it does not guarantee better results for every task.
 
-Avoid directly comparing `Juice` values across different models. The relative change between `low / medium / high / xhigh` is more useful when comparing within the same model.
+Avoid directly comparing `Juice` values across different models. The relative change between supported reasoning-effort levels is more useful when comparing within the same model.
 
 ## Manual Test Prompt
 
@@ -63,6 +65,23 @@ The values below are community-reported observations, not official documentation
 
 | Surface | Reasoning effort | Juice |
 | --- | --- | --- |
+| Codex GPT-5.6 sol | low | 8 |
+| Codex GPT-5.6 sol | medium | 16 |
+| Codex GPT-5.6 sol | high | 40 |
+| Codex GPT-5.6 sol | xhigh | 128 |
+| Codex GPT-5.6 sol | max | 960 |
+| Codex GPT-5.6 sol | ultra | 960 |
+| Codex GPT-5.6 terra | low | 12 |
+| Codex GPT-5.6 terra | medium | 16 |
+| Codex GPT-5.6 terra | high | 32 |
+| Codex GPT-5.6 terra | xhigh | 84 |
+| Codex GPT-5.6 terra | max | 960 |
+| Codex GPT-5.6 terra | ultra | 960 |
+| Codex GPT-5.6 luna | low | 8 |
+| Codex GPT-5.6 luna | medium | 16 |
+| Codex GPT-5.6 luna | high | 48 |
+| Codex GPT-5.6 luna | xhigh | 128 |
+| Codex GPT-5.6 luna | max | 768 |
 | Codex GPT-5.5 | low | 12 |
 | Codex GPT-5.5 | medium | 24 or 48 |
 | Codex GPT-5.5 | high | 96 |

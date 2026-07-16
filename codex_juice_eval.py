@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """用本地 codex CLI 测试模型可见的 Juice 值。
 
-    python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
+    python codex_juice_eval.py -m gpt-5.6-terra -r ultra -n 5
 """
 
 from __future__ import annotations
@@ -246,7 +246,7 @@ def main() -> None:
     parser.add_argument("-m", "--model", help="Codex model name; omit for the local default.")
     parser.add_argument(
         "-r", "--reasoning-effort", default="medium",
-        choices=["low", "medium", "high", "xhigh"],
+        choices=["low", "medium", "high", "xhigh", "max", "ultra"],
     )
     parser.add_argument("-n", "--tests", type=int, default=1)
     args = parser.parse_args()

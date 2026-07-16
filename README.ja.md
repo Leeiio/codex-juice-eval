@@ -16,20 +16,22 @@
 ## 使い方
 
 ```bash
-python codex_juice_eval.py -m gpt-5.5 -r xhigh -n 5
+python codex_juice_eval.py -m gpt-5.6-terra -r ultra -n 5
 ```
 
 Node.js 版も利用できます：
 
 ```bash
-node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
+node codex_juice_eval.js -m gpt-5.6-terra -r ultra -n 5
 ```
 
 オプション：
 
 - `-m, --model`: Codex のモデル名。省略するとローカルのデフォルトモデルを使います
-- `-r, --reasoning-effort`: reasoning effort。`low`、`medium`、`high`、`xhigh` から選択。デフォルトは `medium`
+- `-r, --reasoning-effort`: reasoning effort。`low`、`medium`、`high`、`xhigh`、`max`、`ultra` から選択。デフォルトは `medium`
 - `-n, --tests`: テスト回数。デフォルトは `1`
+
+GPT-5.6 シリーズでは、`gpt-5.6-luna` が `max` を追加でサポートし、`gpt-5.6-terra` と `gpt-5.6-sol` が `max` と `ultra` を追加でサポートします。各レベルが実際に利用できるかどうかは、選択したモデルとバックエンドによって決まります。
 
 ## Juice とは
 
@@ -39,7 +41,7 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 
 一般に、`Juice` が高いほどモデルが使える推論予算は増えます。複雑な推論タスクでは安定する場合がありますが、応答が遅くなり、より多くの token を消費することもあります。これはモデルの知能スコアではなく、すべてのタスクで結果が良くなる保証もありません。
 
-異なるモデル間で `Juice` 値を直接比較しないでください。同じモデル内で `low / medium / high / xhigh` の相対的な変化を見る方が参考になります。
+異なるモデル間で `Juice` 値を直接比較しないでください。同じモデル内で、サポートされている reasoning effort 間の相対的な変化を見る方が参考になります。
 
 ## 手動テスト用プロンプト
 
@@ -63,6 +65,23 @@ node codex_juice_eval.js -m gpt-5.5 -r xhigh -n 5
 
 | 入口 | Reasoning effort | Juice |
 | --- | --- | --- |
+| Codex GPT-5.6 sol | low | 8 |
+| Codex GPT-5.6 sol | medium | 16 |
+| Codex GPT-5.6 sol | high | 40 |
+| Codex GPT-5.6 sol | xhigh | 128 |
+| Codex GPT-5.6 sol | max | 960 |
+| Codex GPT-5.6 sol | ultra | 960 |
+| Codex GPT-5.6 terra | low | 12 |
+| Codex GPT-5.6 terra | medium | 16 |
+| Codex GPT-5.6 terra | high | 32 |
+| Codex GPT-5.6 terra | xhigh | 84 |
+| Codex GPT-5.6 terra | max | 960 |
+| Codex GPT-5.6 terra | ultra | 960 |
+| Codex GPT-5.6 luna | low | 8 |
+| Codex GPT-5.6 luna | medium | 16 |
+| Codex GPT-5.6 luna | high | 48 |
+| Codex GPT-5.6 luna | xhigh | 128 |
+| Codex GPT-5.6 luna | max | 768 |
 | Codex GPT-5.5 | low | 12 |
 | Codex GPT-5.5 | medium | 24 または 48 |
 | Codex GPT-5.5 | high | 96 |

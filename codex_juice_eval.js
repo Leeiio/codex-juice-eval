@@ -14,11 +14,18 @@ const JUICE_PROMPT = `<?xml version="1.0" encoding="UTF-8"?><request
   <juice_level></juice_level>
   </request>`;
 
-const REASONING_EFFORTS = new Set(["low", "medium", "high", "xhigh"]);
+const REASONING_EFFORTS = new Set([
+  "low",
+  "medium",
+  "high",
+  "xhigh",
+  "max",
+  "ultra",
+]);
 const NUMBER_PATTERN = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 function usage() {
-  return `Usage: node codex_juice_eval.js [-m model] [-r low|medium|high|xhigh] [-n tests]
+  return `Usage: node codex_juice_eval.js [-m model] [-r low|medium|high|xhigh|max|ultra] [-n tests]
 
 Options:
   -m, --model              Codex model name; omit for the local default.
@@ -61,7 +68,7 @@ function parseArgs(argv) {
 
   if (!REASONING_EFFORTS.has(args.reasoningEffort)) {
     throw new Error(
-      `invalid reasoning effort: ${args.reasoningEffort}; expected low, medium, high, or xhigh`,
+      `invalid reasoning effort: ${args.reasoningEffort}; expected low, medium, high, xhigh, max, or ultra`,
     );
   }
   if (!Number.isInteger(args.tests) || args.tests < 1) {
