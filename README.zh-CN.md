@@ -168,6 +168,20 @@ python codex_juice_eval.py -m gpt-5.6-sol -r high -p 3 -n 5
 
 以下数值来自社区实测整理，不是官方文档或稳定 API，可能随模型、Codex CLI 版本、账号、入口、服务端路由和中转适配变化。
 
+**汇总矩阵**
+
+| 入口 | low | medium | high | xhigh | max | ultra |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Codex GPT-5.6 sol | 8 | 16 | 40 | 128 | 960 | 960 |
+| Codex GPT-5.6 terra | 12 | 16 | 32 | 84 | 960 | 960 |
+| Codex GPT-5.6 luna | 8 | 16 | 48 | 128 | 768 | - |
+| Codex GPT-5.5 | 12 | 24 或 48 | 96 | 768 | - | - |
+| OpenAI API GPT-5.5 | 12 | 48 | 128 | 768 | - | - |
+
+`-` 表示详细表格中没有列出该组合的参考值。
+
+**详细实测数据**
+
 | 入口 | 推理强度 | Juice |
 | --- | --- | --- |
 | Codex GPT-5.6 sol | low | 8 |

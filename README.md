@@ -168,6 +168,20 @@ Changing the prompt does not change the model, reasoning effort, or number of te
 
 The values below are community-reported observations, not official documentation or a stable API. They may change with the model, Codex CLI version, account, surface, server-side routing, or proxy compatibility.
 
+**Overview matrix**
+
+| Surface | low | medium | high | xhigh | max | ultra |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Codex GPT-5.6 sol | 8 | 16 | 40 | 128 | 960 | 960 |
+| Codex GPT-5.6 terra | 12 | 16 | 32 | 84 | 960 | 960 |
+| Codex GPT-5.6 luna | 8 | 16 | 48 | 128 | 768 | - |
+| Codex GPT-5.5 | 12 | 24 or 48 | 96 | 768 | - | - |
+| OpenAI API GPT-5.5 | 12 | 48 | 128 | 768 | - | - |
+
+`-` means that the detailed table does not list a reference value for that combination.
+
+**Detailed observations**
+
 | Surface | Reasoning effort | Juice |
 | --- | --- | --- |
 | Codex GPT-5.6 sol | low | 8 |
